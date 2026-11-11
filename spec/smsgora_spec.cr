@@ -54,10 +54,11 @@ describe SmsGora do
 
   it "builds paths and queries" do
     c = client
-    c.send_bulk_sms(42, [{"recipients" => ["+1"], "message" => "a"}, {"recipients" => ["+2"]}] of Hash(String, String | Array(String)), message_template: "t")
+    c.send_bulk_sms(42, [SmsGora::BulkMessage.new(["+1"], "a"), SmsGora::BulkMessage.new(["+2"])], message_template: "t")
     seen = LAST.receive
     seen.resource.should eq "/api/devices/42/send-bulk-sms"
     seen.body.not_nil!["messageTemplate"].as_s.should eq "t"
+    seen.body.not_nil!["messages"][1].as_h.has_key?("message").should be_false
     c.list_received_sms(phone: "+1555", since: "2026-11-01")
     LAST.receive.resource.should eq "/api/received-sms?phone=%2B1555&since=2026-11-01"
     c.list_received_sms(device_id: 3)

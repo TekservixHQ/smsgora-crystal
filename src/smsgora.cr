@@ -30,6 +30,16 @@ module SmsGora
     end
   end
 
+  # One entry for `Client#send_bulk_sms`. Leave `message` nil to use the shared template.
+  record BulkMessage, recipients : Array(String), message : String? = nil do
+    def to_json(json : JSON::Builder)
+      json.object do
+        json.field "recipients", recipients
+        json.field "message", message if message
+      end
+    end
+  end
+
   class Client
     getter base_url : String
 
@@ -95,8 +105,8 @@ module SmsGora
     end
 
     # Different texts for different people in one call (up to 5,000 recipients).
-    # `messages`: `[{"recipients" => ["+1555..."], "message" => "own text"}, ...]`
-    def send_bulk_sms(device_id, messages : Array(Hash(String, String | Array(String))), message_template : String? = nil) : JSON::Any
+    # `messages`: `[SmsGora::BulkMessage.new(["+1555..."], "own text"), ...]`
+    def send_bulk_sms(device_id, messages : Array(BulkMessage), message_template : String? = nil) : JSON::Any
       body = {"messages" => JSON.parse(messages.to_json)} of String => JSON::Any
       body["messageTemplate"] = JSON::Any.new(message_template) if message_template
       request("POST", "/devices/#{esc(device_id)}/send-bulk-sms", body)
