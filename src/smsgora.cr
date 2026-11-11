@@ -124,13 +124,13 @@ module SmsGora
 
     # Filters: direction, status, device_id, phone, since, after_id, page, limit.
     def list_messages(**filters) : JSON::Any
-      request("GET", "/messages" + query(filters.to_h))
+      request("GET", "/messages" + query(filters))
     end
 
     # Incoming SMS for all phones, or one phone with `device_id`.
     def list_received_sms(device_id = nil, **filters) : JSON::Any
       path = device_id ? "/devices/#{esc(device_id)}/get-received-sms" : "/received-sms"
-      request("GET", path + query(filters.to_h))
+      request("GET", path + query(filters))
     end
 
     def get_batch(id) : JSON::Any
@@ -169,8 +169,10 @@ module SmsGora
     end
 
     private def query(params) : String
-      pairs = params.reject { |_, v| v.nil? || v.to_s.empty? }.map { |k, v| {k.to_s, v.to_s} }.sort_by(&.[0])
+      pairs = [] of {String, String}
+      params.each { |k, v| pairs << {k.to_s, v.to_s} unless v.nil? || v.to_s.empty? }
       return "" if pairs.empty?
+      pairs.sort_by!(&.[0])
       "?" + pairs.map { |k, v| "#{URI.encode_www_form(k)}=#{URI.encode_www_form(v)}" }.join("&")
     end
   end
