@@ -1,0 +1,29 @@
+name: tests
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        crystal: ['1.10.1', latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: crystal-lang/install-crystal@v1
+        with:
+          crystal: ${{ matrix.crystal }}
+      - run: crystal spec
+      - run: crystal tool format --check
+        if: matrix.crystal == 'latest'
+  format-patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: crystal-lang/install-crystal@v1
+      - run: crystal tool format && git diff > format.patch
+      - uses: actions/upload-artifact@v4
+        with:
+          name: format-patch
+          path: format.patch

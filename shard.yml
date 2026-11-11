@@ -1,0 +1,16 @@
+name: smsgora
+version: 1.0.0
+
+description: |
+  Crystal client for the SMS Gora SMS Gateway API: send and receive SMS through your own
+  Android phones. Needs a Tekservix account with SMS Gora and an API key.
+
+authors:
+  - Tekservix <support@tekservix.com>
+
+crystal: ">= 1.10.0"
+
+license: MIT
+repository: https://github.com/TekservixHQ/smsgora-crystal
+homepage: https://tekservix.com/smsgora/
+documentation: https://tekservix.com/smsgora/docs/
